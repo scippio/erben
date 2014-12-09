@@ -17,17 +17,28 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Page;
 
-class Index extends \Base\Page {
-	public static function url() {
-		$url = new \Common\NiceUrl();
-		return $url->getUrl();
-	}
-
-	public function runWeb() {
-		self::checkCanonicalUrl(self::url());
-		$tpl = new \Web\Template('index.php');
-		$this->sendHtml($tpl, 'Main Page');
-	}
+if (empty($self) || !$self instanceOf \Web\Template) {
+	throw new Exception('Templates must be called using \\Web\\Template class.');
 }
+
+$firstlink = p('<a href="%s">&laquo; First</a>', $self->firsturl);
+$prevlink = p('<a href="%s">&lt; Previous</a>', $self->prevurl);
+$nextlink = p('<a href="%s">Next &gt;</a>', $self->nexturl);
+$lastlink = p('<a href="%s">Last &raquo;</a>', $self->lasturl);
+
+$navfmt = <<<SNIPPET
+$firstlink $prevlink Page %d/%d $nextlink $lastlink
+SNIPPET;
+
+$pagecounter = p(trim($navfmt), $self->pagenum, $self->pagecount);
+?>
+<h1>Book Catalog</h1>
+
+<?php echo $pagecounter; ?>
+
+<div class="catalog">
+<?php echo $self->_list; ?>
+</div>
+
+<?php echo $pagecounter; ?>

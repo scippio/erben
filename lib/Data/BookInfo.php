@@ -17,17 +17,26 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Page;
+namespace Data;
 
-class Index extends \Base\Page {
-	public static function url() {
-		$url = new \Common\NiceUrl();
-		return $url->getUrl();
+class BookInfo extends \Base\StyledObject {
+	public function __construct(array $data) {
+		$keys = array('id', 'title', 'kramerius_id', 'web', 'lang',
+			'srcrepo');
+		parent::__construct($data, $keys);
 	}
 
-	public function runWeb() {
-		self::checkCanonicalUrl(self::url());
-		$tpl = new \Web\Template('index.php');
-		$this->sendHtml($tpl, 'Main Page');
+	public function htmldata() {
+		$ret = parent::htmldata();
+		$ret->link = \Page\Book::url($this->data['id']);
+		return $ret;
+	}
+
+	protected function style_default(\Web\HtmlData $self) {
+		return <<<SNIPPET
+<div class="booklink">
+<a href="$self->link">$self->title</a>
+</div>
+SNIPPET;
 	}
 }

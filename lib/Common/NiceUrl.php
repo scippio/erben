@@ -44,8 +44,8 @@ class NiceUrl {
 
 		$base = dirname($_SERVER['PHP_SELF']);
 
-		if ($base == '.') {
-			$base = '';
+		if ($base == '.' || $base == '\\') {
+			$base = '/';
 		} else if (!empty($base) && substr($base, -1) != '/') {
 			$base .= '/';
 		}
@@ -54,11 +54,18 @@ class NiceUrl {
 	}
 
 	public function parse($strURL) {
-		if (substr($strURL, 0, strlen(self::$base)) != self::$base) {
-			throw new \Exeception('NiceUrl::parse(): Cannot parse URL that doesn\'t belong to Erben');
+		$prefix = substr($strURL, 0, strlen(self::$base) - 1) . '/';
+
+		if ($prefix != self::$base) {
+			throw new \Exception('NiceUrl::parse(): Cannot parse URL that doesn\'t belong to Erben');
 		}
 
-		$suburl = substr($strURL, strlen(self::$base));
+		if (self::$base == '/' && substr($strURL, 0, 1) != '/') {
+			$suburl = $strUrl;
+		} else {
+			$suburl = substr($strURL, strlen(self::$base));
+		}
+
 		$path = preg_split('#/#', $suburl);
 		$ids = array();
 

@@ -17,17 +17,11 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Page;
 
-class Index extends \Base\Page {
-	public static function url() {
-		$url = new \Common\NiceUrl();
-		return $url->getUrl();
-	}
-
-	public function runWeb() {
-		self::checkCanonicalUrl(self::url());
-		$tpl = new \Web\Template('index.php');
-		$this->sendHtml($tpl, 'Main Page');
-	}
+if (empty($self) || !$self instanceOf \Web\Template) {
+	throw new Exception('Templates must be called using \\Web\\Template class.');
 }
+?>
+<h1><?php echo $self->title; ?></h1>
+
+<p><a href="<?php echo $self->srcurl; ?>">Source repository</a></p>

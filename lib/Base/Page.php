@@ -21,6 +21,7 @@ namespace Base;
 
 abstract class Page {
 	private static $urldata = null;
+	private $navigation = null;
 
 	abstract public function runWeb();
 
@@ -54,6 +55,48 @@ abstract class Page {
 			self::$urldata = new \Common\NiceUrl($_SERVER['REDIRECT_URL']);
 		}
 
-		return self::$urldata;
+		# Prevent changes to the internal object
+		return clone self::$urldata;
+	}
+
+	protected static function redirect($url, $statuscode = 303) {
+		$scheme = empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME'];
+		$host = empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
+		$port = $_SERVER['SERVER_PORT'];
+		$url = "$scheme://$host:$port$url";
+		header('Location: ' . $url, true, $statuscode);
+		$tpl = new \Web\Template('redirect.php');
+		$tpl->url = $url;
+		$tpl->_url = $url;
+		die($tpl->render());
+	}
+
+	protected static function checkCanonicalUrl($canonUrl) {
+		$url = self::pageUrl()->getUrl();
+
+		if ($url != $canonUrl) {
+			self::redirect($canonUrl, 301);
+		}
+	}
+
+	protected function navigation() {
+		if (is_null($this->navigation)) {
+			# Prevent exception loop
+			$this->navigation = '';
+			$nav = new \Web\Template('navigation.php');
+			$nav->url_index = \Page\Index::url();
+			$nav->url_catalog = \Page\Catalog::url();
+			$this->navigation = $nav;
+		}
+
+		return $this->navigation;
+	}
+
+	protected function sendHtml(\Web\Template $content, $title = '') {
+		$layout = new \Web\Template('layout.php');
+		$layout->title = $title;
+		$layout->navigation = $this->navigation();
+		$layout->content = $content;
+		echo $layout->render();
 	}
 }

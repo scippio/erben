@@ -17,17 +17,10 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Page;
+namespace Common;
 
-class Index extends \Base\Page {
-	public static function url() {
-		$url = new \Common\NiceUrl();
-		return $url->getUrl();
-	}
-
-	public function runWeb() {
-		self::checkCanonicalUrl(self::url());
-		$tpl = new \Web\Template('index.php');
-		$this->sendHtml($tpl, 'Main Page');
+class NotFoundException extends \Exception {
+	public function __construct($msg = null, $code = 0, \Exception $prev = null) {
+		parent::__construct($msg, $code, $prev);
 	}
 }

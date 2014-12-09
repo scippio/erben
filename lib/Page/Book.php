@@ -19,15 +19,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 namespace Page;
 
-class Index extends \Base\Page {
-	public static function url() {
+class Book extends \Base\Page {
+	public static function url($bookid) {
+		$man = new \Common\BookManager();
+		$info = $man->bookInfo($bookid);
 		$url = new \Common\NiceUrl();
+		$url->setChunk(0, 'book');
+		$url->setChunk(1, $bookid, $info['title']);
 		return $url->getUrl();
 	}
 
 	public function runWeb() {
-		self::checkCanonicalUrl(self::url());
-		$tpl = new \Web\Template('index.php');
-		$this->sendHtml($tpl, 'Main Page');
+		$path = self::pageUrl();
+		$bookid = $path->getIdInt(1);
+
+		if (is_null($bookid)) {
+			self::errorNotFound();
+		}
+
+		try {
+			$canonurl = self::url($bookid);
+			self::checkCanonicalUrl($canonurl);
+			$man = new \Common\BookManager();
+			$info = $man->bookInfo($bookid);
+		} catch (\Common\NotFoundException $e) {
+			self::errorNotFound();
+		}
+
+		$tpl = new \Web\Template('book.php');
+		$tpl->title = $info['title'];
+		$tpl->srcurl = $info['web'];
+		$this->sendHtml($tpl, $info['title']);
 	}
 }

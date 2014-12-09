@@ -20,11 +20,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace Page;
 
 class Images extends \Base\Page {
+	public static function imageUrl($id) {
+		$url = new \Common\NiceUrl();
+		$url->setChunk(0, 'images');
+		$url->setChunk(1, $id);
+		return $url->getUrl();
+	}
+
 	public function runWeb() {
 		$path = self::pageUrl();
 		$page = $path->getIdInt(1);
+		self::checkCanonicalUrl(self::imageUrl($page));
 
-		if ($path->chunkCount() != 2 || is_null($page)) {
+		if (is_null($page)) {
 			self::errorNotFound();
 		}
 
